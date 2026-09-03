@@ -138,7 +138,7 @@ fun TaskStatusIndicator(status: TaskStatus) {
                 modifier = Modifier
                     .size(size)
                     .clip(CircleShape)
-                    .background(FocusColors.Yellow),
+                    .border(1.5.dp, FocusColors.Yellow, CircleShape),
                 contentAlignment = Alignment.Center
             ) {}
         }
@@ -202,10 +202,17 @@ fun PriorityBadge(priority: Priority, status: TaskStatus = TaskStatus.TODO) {
             .padding(horizontal = 8.dp, vertical = 3.dp)
     ) {
         Text(
-            text = priority.name,
+            text = getPriorityName(priority),
             style = MaterialTheme.typography.labelSmall,
             color = textColor
         )
     }
 }
 
+fun getPriorityName(priority: Priority): String {
+    return when (priority) {
+        Priority.HIGH -> "H"
+        Priority.MEDIUM -> "M"
+        Priority.LOW -> "L"
+    }
+}

@@ -26,7 +26,7 @@ fun TaskList(
     Column(modifier = modifier) {
         // "TODAY" header
         Text(
-            text = "TODAY",
+            text = "TASK LIST",
             style = MaterialTheme.typography.titleSmall,
             color = FocusColors.TextMuted,
             modifier = Modifier.padding(start = 16.dp, bottom = 8.dp, top = 8.dp)

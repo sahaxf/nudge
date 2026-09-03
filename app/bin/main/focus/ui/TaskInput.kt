@@ -37,17 +37,10 @@ fun TaskInput(
     var selectedPriority by remember { mutableStateOf(Priority.MEDIUM) }
     val focusRequester = remember { FocusRequester() }
 
-    val durations = listOf(5, 10, 15, 25, 45, 60)
+    val durations = listOf(5, 10, 20, 30, 45, 60)
 
     Column(modifier = modifier.fillMaxWidth()) {
-        // Header
-        Text(
-            text = "Add a task",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
-
+        
         // Text input
         OutlinedTextField(
             value = title,
@@ -131,27 +124,7 @@ fun TaskInput(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Add Task button
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            OutlinedButton(
-                onClick = {
-                    if (title.isNotBlank()) {
-                        onAddTask(title.trim(), selectedDuration, selectedPriority)
-                        title = ""
-                    }
-                },
-                enabled = title.isNotBlank(),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color.White,
-                    disabledContentColor = FocusColors.TextMuted
-                ),
-                border = ButtonDefaults.outlinedButtonBorder(enabled = title.isNotBlank()),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text("Add Task", style = MaterialTheme.typography.labelLarge)
-            }
-        }
+        
     }
 
     LaunchedEffect(Unit) {

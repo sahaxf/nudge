@@ -11,8 +11,8 @@ import focus.ui.FocusPill
 object WindowManager {
 
     private const val BOTTOM_MARGIN_PX = 32
-    private const val PILL_WIDTH = 200
-    private const val PILL_HEIGHT = 56
+    private const val PILL_WIDTH = 216
+    private const val PILL_HEIGHT = 44
 
     data class WindowPosition(val x: Int, val y: Int)
 

@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -30,7 +31,7 @@ fun FocusWindow(
     val windowState = rememberWindowState(
         size = DpSize(
             width = 250.dp,
-            height = 56.dp
+            height = 64.dp
         ),
         position = WindowPosition(
             position.x.dp,
@@ -43,6 +44,7 @@ fun FocusWindow(
             appState.stopSession()
         },
         title = "Focus Timer",
+        icon = painterResource("icon.png"),
         state = windowState,
         undecorated = true,
         transparent = true,
