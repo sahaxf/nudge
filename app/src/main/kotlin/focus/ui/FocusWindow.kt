@@ -30,7 +30,7 @@ fun FocusWindow(
 
     val windowState = rememberWindowState(
         size = DpSize(
-            width = 250.dp,
+            width = 340.dp,
             height = 64.dp
         ),
         position = WindowPosition(

@@ -11,8 +11,8 @@ import focus.ui.FocusPill
 object WindowManager {
 
     private const val BOTTOM_MARGIN_PX = 32
-    private const val PILL_WIDTH = 216
-    private const val PILL_HEIGHT = 44
+    private const val WINDOW_WIDTH = 340
+    private const val WINDOW_HEIGHT = 64
 
     data class WindowPosition(val x: Int, val y: Int)
 
@@ -29,8 +29,8 @@ object WindowManager {
 
         val usableHeight = bounds.height - insets.bottom
 
-        val x = bounds.x + (bounds.width - PILL_WIDTH) / 2
-        val y = bounds.y + usableHeight - PILL_HEIGHT - BOTTOM_MARGIN_PX
+        val x = bounds.x + (bounds.width - WINDOW_WIDTH) / 2
+        val y = bounds.y + usableHeight - WINDOW_HEIGHT - BOTTOM_MARGIN_PX
 
         return WindowPosition(x, y)
     }

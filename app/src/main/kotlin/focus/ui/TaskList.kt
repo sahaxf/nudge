@@ -1,13 +1,19 @@
 package focus.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import focus.domain.Task
 
@@ -21,7 +27,8 @@ fun TaskList(
     selectedTaskId: Long? = null,
     onSelectTask: (Task) -> Unit = {},
     onPlayTask: (Task) -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     Column(modifier = modifier) {
         // "TODAY" header
@@ -46,11 +53,11 @@ fun TaskList(
                 modifier = Modifier.padding(16.dp)
             )
         } else {
-            Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = contentPadding
             ) {
-                tasks.forEach { task ->
+                items(tasks, key = { it.id }) { task ->
                     TaskRow(
                         task = task,
                         isSelected = task.id == selectedTaskId,

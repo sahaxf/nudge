@@ -13,6 +13,7 @@ dependencies {
     // Compose Desktop
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
+    implementation(compose.materialIconsExtended)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)

@@ -19,7 +19,9 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontFamily
@@ -111,29 +113,36 @@ fun FocusPill(
     }
 
     // ---------------------------------------------------------
-    // Hover state for subtle stop action
+    // Hover state for stop action (always visible)
     // ---------------------------------------------------------
 
     var isStopHovered by remember { mutableStateOf(false) }
     val stopAlpha by animateFloatAsState(
-        targetValue = if (isStopHovered) 0.75f else 0f,
+        targetValue = if (isStopHovered) 1f else 0.75f,
         animationSpec = tween(150),
         label = "stopAlpha"
+    )
+    val stopScale by animateFloatAsState(
+        targetValue = if (isStopHovered) 1.15f else 1f,
+        animationSpec = tween(150),
+        label = "stopScale"
     )
 
     // ---------------------------------------------------------
     // Dimensions
     // ---------------------------------------------------------
 
-    val pillWidth = 216.dp
+    val pillWidth = 300.dp
     val pillHeight = 44.dp
+    val containerWidth = pillWidth + 24.dp
+    val containerHeight = pillHeight + 16.dp
 
     Box(
-        modifier = modifier.size(width = 240.dp, height = 60.dp),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         Canvas(
-            modifier = Modifier.size(width = 240.dp, height = 60.dp)
+            modifier = Modifier.size(width = containerWidth, height = containerHeight)
         ) {
             val pillWidthPx = pillWidth.toPx()
             val pillHeightPx = pillHeight.toPx()
@@ -336,26 +345,35 @@ fun FocusPill(
             )
 
             // =====================================================
-            // 8. SUBTLE STOP ICON (Revealed smoothly on hover)
+            // 8. STOP ICON (Always visible, interactive on hover)
             // =====================================================
 
-            if (stopAlpha > 0.01f) {
-                val stopSize = 9.dp.toPx()
-                val stopCenter = Offset(
-                    x = pillLeft + pillWidthPx - radius * 0.9f,
-                    y = pillTop + pillHeightPx / 2f
-                )
+            val stopSize = 10.dp.toPx() * stopScale
+            val stopCenter = Offset(
+                x = pillLeft + pillWidthPx - radius,
+                y = pillTop + pillHeightPx / 2f
+            )
 
-                drawRoundRect(
-                    color = Color.White.copy(alpha = stopAlpha),
-                    topLeft = Offset(
-                        x = stopCenter.x - stopSize / 2f,
-                        y = stopCenter.y - stopSize / 2f
-                    ),
-                    size = Size(stopSize, stopSize),
-                    cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx())
-                )
-            }
+            // Subtle drop shadow for contrast against both dark glass and amber progress
+            drawRoundRect(
+                color = Color.Black.copy(alpha = 0.35f * stopAlpha),
+                topLeft = Offset(
+                    x = stopCenter.x - stopSize / 2f,
+                    y = stopCenter.y - stopSize / 2f + 1.dp.toPx()
+                ),
+                size = Size(stopSize, stopSize),
+                cornerRadius = CornerRadius(2.dp.toPx() * stopScale, 2.dp.toPx() * stopScale)
+            )
+
+            drawRoundRect(
+                color = Color.White.copy(alpha = stopAlpha),
+                topLeft = Offset(
+                    x = stopCenter.x - stopSize / 2f,
+                    y = stopCenter.y - stopSize / 2f
+                ),
+                size = Size(stopSize, stopSize),
+                cornerRadius = CornerRadius(2.dp.toPx() * stopScale, 2.dp.toPx() * stopScale)
+            )
         }
 
         // =========================================================
@@ -364,12 +382,13 @@ fun FocusPill(
 
         Box(
             modifier = Modifier
-                .size(width = 240.dp, height = 60.dp)
+                .size(width = pillWidth, height = pillHeight)
         ) {
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .size(width = 44.dp, height = 44.dp)
+                    .pointerHoverIcon(PointerIcon.Hand)
                     .onPointerEvent(PointerEventType.Enter) { isStopHovered = true }
                     .onPointerEvent(PointerEventType.Exit) { isStopHovered = false }
                     .clickable(
