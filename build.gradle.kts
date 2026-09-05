@@ -29,6 +29,8 @@ dependencies {
     implementation(libs.sqlite.jdbc)
 
     // Testing
+    testImplementation(kotlin("test"))
+    testImplementation(kotlin("test-junit5"))
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
@@ -56,4 +58,5 @@ compose.desktop {
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
+    testClassesDirs = sourceSets["test"].output.classesDirs + files(layout.buildDirectory.dir("classes/kotlin/test"))
 }

@@ -55,9 +55,27 @@ class AppState(
     /**
      * Add a new task and refresh the list.
      */
-    fun addTask(title: String, durationMinutes: Int, priority: Priority) {
+    fun addTask(
+        title: String,
+        durationMinutes: Int = 25,
+        priority: Priority = Priority.MEDIUM,
+        tag: String = "Deep Work"
+    ) {
         scope.launch {
-            repository.createTask(title, durationMinutes, priority)
+            repository.createTask(title, durationMinutes, priority, tag)
+            refreshTasksInternal()
+        }
+    }
+
+    /**
+     * Toggle completion status of a task.
+     */
+    fun toggleTask(task: Task) {
+        scope.launch {
+            val updated = repository.toggleTaskStatus(task.id)
+            if (_selectedTask.value?.id == task.id) {
+                _selectedTask.value = updated
+            }
             refreshTasksInternal()
         }
     }
