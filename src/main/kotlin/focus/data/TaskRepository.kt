@@ -29,6 +29,18 @@ class TaskRepository {
 
         transaction(database) {
             SchemaUtils.create(Tasks, FocusSessions)
+            try {
+                exec("ALTER TABLE tasks ADD COLUMN tag TEXT DEFAULT 'Deep Work'")
+            } catch (_: Exception) {}
+
+            // Remove any legacy mock tasks so by default the task list starts clean and empty
+            Tasks.deleteWhere {
+                (title eq "Research vector databases") or
+                (title eq "Write blog post") or
+                (title eq "Code review") or
+                (title eq "Plan project roadmap") or
+                (title eq "Reply to emails")
+            }
         }
     }
 
@@ -73,7 +85,12 @@ class TaskRepository {
     /**
      * Create a new task. Returns the task with its generated ID.
      */
-    suspend fun createTask(title: String, durationMinutes: Int, priority: Priority): Task =
+    suspend fun createTask(
+        title: String,
+        durationMinutes: Int = 25,
+        priority: Priority = Priority.MEDIUM,
+        tag: String = "Deep Work"
+    ): Task =
         withContext(Dispatchers.IO) {
             val now = Clock.System.now()
             val id = transaction(database) {
@@ -84,6 +101,7 @@ class TaskRepository {
                     it[Tasks.status] = TaskStatus.TODO.name
                     it[Tasks.createdAt] = now.toString()
                     it[Tasks.completedAt] = null
+                    it[Tasks.tag] = tag
                 } get Tasks.id
             }
             Task(
@@ -92,7 +110,8 @@ class TaskRepository {
                 durationMinutes = durationMinutes,
                 priority = priority,
                 status = TaskStatus.TODO,
-                createdAt = now
+                createdAt = now,
+                tag = tag
             )
         }
 
@@ -105,8 +124,30 @@ class TaskRepository {
                 it[Tasks.status] = status.name
                 if (status == TaskStatus.COMPLETED) {
                     it[Tasks.completedAt] = Clock.System.now().toString()
+                } else {
+                    it[Tasks.completedAt] = null
                 }
             }
+        }
+    }
+
+    /**
+     * Toggle the status of a task between TODO and COMPLETED.
+     */
+    suspend fun toggleTaskStatus(taskId: Long): Task = withContext(Dispatchers.IO) {
+        transaction(database) {
+            val current = Tasks.selectAll().where { Tasks.id eq taskId }.firstOrNull()?.toTask()
+                ?: error("Task not found: $taskId")
+            val newStatus = if (current.status == TaskStatus.COMPLETED) TaskStatus.TODO else TaskStatus.COMPLETED
+            val completedAtTime = if (newStatus == TaskStatus.COMPLETED) Clock.System.now().toString() else null
+            Tasks.update({ Tasks.id eq taskId }) {
+                it[Tasks.status] = newStatus.name
+                it[Tasks.completedAt] = completedAtTime
+            }
+            current.copy(
+                status = newStatus,
+                completedAt = completedAtTime?.let { Instant.parse(it) }
+            )
         }
     }
 
@@ -146,14 +187,22 @@ class TaskRepository {
             }
         }
 
-    private fun ResultRow.toTask() = Task(
-        id = this[Tasks.id],
-        title = this[Tasks.title],
-        durationMinutes = this[Tasks.durationMinutes],
-        priority = Priority.valueOf(this[Tasks.priority]),
-        status = TaskStatus.valueOf(this[Tasks.status]),
-        createdAt = Instant.parse(this[Tasks.createdAt]),
-        completedAt = this[Tasks.completedAt]?.let { Instant.parse(it) }
-    )
+    private fun ResultRow.toTask(): Task {
+        val taskTag = try {
+            this[Tasks.tag]
+        } catch (_: Exception) {
+            "Deep Work"
+        }
+        return Task(
+            id = this[Tasks.id],
+            title = this[Tasks.title],
+            durationMinutes = this[Tasks.durationMinutes],
+            priority = Priority.valueOf(this[Tasks.priority]),
+            status = TaskStatus.valueOf(this[Tasks.status]),
+            createdAt = Instant.parse(this[Tasks.createdAt]),
+            completedAt = this[Tasks.completedAt]?.let { Instant.parse(it) },
+            tag = taskTag
+        )
+    }
 }
 

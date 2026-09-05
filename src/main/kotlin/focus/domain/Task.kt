@@ -9,9 +9,10 @@ data class Task(
     val id: Long = 0,
     val title: String,
     val durationMinutes: Int,
-    val priority: Priority,
+    val priority: Priority = Priority.MEDIUM,
     val status: TaskStatus = TaskStatus.TODO,
     val createdAt: Instant,
-    val completedAt: Instant? = null
+    val completedAt: Instant? = null,
+    val tag: String = "Deep Work"
 )
 

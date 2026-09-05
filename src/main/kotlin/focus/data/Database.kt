@@ -13,6 +13,7 @@ object Tasks : Table("tasks") {
     val status = text("status")
     val createdAt = text("created_at")
     val completedAt = text("completed_at").nullable()
+    val tag = text("tag").default("Deep Work")
 
     override val primaryKey = PrimaryKey(id)
 }

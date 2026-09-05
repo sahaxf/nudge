@@ -11,4 +11,3 @@ plugins {
 }
 
 rootProject.name = "FocusHD"
-include("app")

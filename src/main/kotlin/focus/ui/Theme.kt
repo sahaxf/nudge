@@ -18,16 +18,36 @@ object FocusColors {
     // Primary yellow (progress fill, buttons)
     val Yellow = Color(0xFFFFD23F)
     val YellowDark = Color(0xFFE6BD38)
+    val MomentumYellow = Color(0xFFF5C518)
 
     // Surfaces
     val DarkSurface = Color(0xFF2B2B2E)
     val DarkerBackground = Color(0xFF1A1A1D)
-    val CardBackground = Color(0xFF232326)
+    val AppBackground = Color(0xFF0F0F12)
+    val SidebarBackground = Color(0xFF0C0C0E)
+    val SidebarActiveTab = Color(0xFF262010)
+    val CardBackground = Color(0xFF141417)
+    val InputBackground = Color(0xFF161619)
+    val CardBorder = Color(0xFF232329)
+    val DividerColor = Color(0xFF1C1C22)
 
     // Text
     val TextPrimary = Color(0xFFFFFFFF)
-    val TextSecondary = Color(0xFF8A8ABF)
-    val TextMuted = Color(0xFF8A8A8F)
+    val TextSecondary = Color(0xFF9CA3AF)
+    val TextMuted = Color(0xFF71717A)
+    val TextDim = Color(0xFF52525B)
+
+    // Tag colors
+    val TagDeepWorkBg = Color(0xFF2B220C)
+    val TagDeepWorkText = Color(0xFFF5C518)
+    val TagWritingBg = Color(0xFF0F2B1D)
+    val TagWritingText = Color(0xFF4ADE80)
+    val TagPlanningBg = Color(0xFF0C243B)
+    val TagPlanningText = Color(0xFF38BDF8)
+    val TagAdminBg = Color(0xFF261435)
+    val TagAdminText = Color(0xFFC084FC)
+    val TagDefaultBg = Color(0xFF232328)
+    val TagDefaultText = Color(0xFFD4D4D8)
 
     // Status
     val Green = Color(0xFF22C55E)
