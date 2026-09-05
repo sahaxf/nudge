@@ -1,15 +1,47 @@
 package focus.ui
 
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
-import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.platform.Font
+import androidx.compose.ui.unit.sp
+
+val GoogleSansFontFamily = FontFamily(
+    Font(
+        resource = "fonts/Inter-Regular.ttf",
+        weight = FontWeight.Normal,
+        style = FontStyle.Normal
+    ),
+    Font(
+        resource = "fonts/Inter-Regular.ttf",
+        weight = FontWeight.Light,
+        style = FontStyle.Normal
+    ),
+    Font(
+        resource = "fonts/Inter-Regular.ttf",
+        weight = FontWeight.Medium,
+        style = FontStyle.Normal
+    ),
+    Font(
+        resource = "fonts/Inter-Regular.ttf",
+        weight = FontWeight.SemiBold,
+        style = FontStyle.Normal
+    ),
+    Font(
+        resource = "fonts/Inter-Regular.ttf",
+        weight = FontWeight.Bold,
+        style = FontStyle.Normal
+    )
+)
 
 /**
  * Color palette from the UI mock.
@@ -66,8 +98,8 @@ object FocusColors {
     val PillBackground = Color(0xFF2B2B2E).copy(alpha = 0.9f)
     val PillProgress = Yellow
     val PillText = Color.White
-    
-    
+
+
     // ---------------------------------------------------------
     // Glass
     // ---------------------------------------------------------
@@ -92,13 +124,13 @@ object FocusColors {
 
     val ProgressStart = Color(0xFFFFC83D)
     val ProgressEnd = Color(0xFFFFD966)
-    
+
     val ProgressHighlight = Color.White.copy(alpha = 0.20f)
 
     // ---------------------------------------------------------
     // Border
     // ---------------------------------------------------------
-    
+
     val BorderHighlight = Color.White.copy(alpha = 0.65f)
     val Border = Color.White.copy(alpha = 0.30f)
 
@@ -130,44 +162,76 @@ private val LightColors = lightColorScheme(
     onPrimary = Color.Black,
 )
 
+private val defaultTypography = Typography()
+
 private val FocusTypography = Typography(
+    displayLarge = defaultTypography.displayLarge.copy(
+        fontFamily = GoogleSansFontFamily,
+        fontWeight = FontWeight.Normal
+    ),
+    displayMedium = defaultTypography.displayMedium.copy(
+        fontFamily = GoogleSansFontFamily,
+        fontWeight = FontWeight.Normal
+    ),
+    displaySmall = defaultTypography.displaySmall.copy(
+        fontFamily = GoogleSansFontFamily,
+        fontWeight = FontWeight.Normal
+    ),
+    headlineLarge = defaultTypography.headlineLarge.copy(
+        fontFamily = GoogleSansFontFamily,
+        fontWeight = FontWeight.Normal
+    ),
     headlineMedium = TextStyle(
-        fontWeight = FontWeight.SemiBold,
+        fontFamily = GoogleSansFontFamily,
+        fontWeight = FontWeight.Normal,
         fontSize = 20.sp,
         letterSpacing = 0.sp
     ),
+    headlineSmall = defaultTypography.headlineSmall.copy(
+        fontFamily = GoogleSansFontFamily,
+        fontWeight = FontWeight.Normal
+    ),
+    titleLarge = defaultTypography.titleLarge.copy(fontFamily = GoogleSansFontFamily, fontWeight = FontWeight.Normal),
     titleMedium = TextStyle(
-        fontWeight = FontWeight.Medium,
+        fontFamily = GoogleSansFontFamily,
+        fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         letterSpacing = 0.15.sp
     ),
     titleSmall = TextStyle(
-        fontWeight = FontWeight.SemiBold,
+        fontFamily = GoogleSansFontFamily,
+        fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
         letterSpacing = 1.sp
     ),
     bodyLarge = TextStyle(
+        fontFamily = GoogleSansFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 15.sp,
         letterSpacing = 0.sp
     ),
     bodyMedium = TextStyle(
+        fontFamily = GoogleSansFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         letterSpacing = 0.sp
     ),
     bodySmall = TextStyle(
+        fontFamily = GoogleSansFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
         letterSpacing = 0.sp
     ),
     labelLarge = TextStyle(
-        fontWeight = FontWeight.SemiBold,
+        fontFamily = GoogleSansFontFamily,
+        fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         letterSpacing = 0.1.sp
     ),
+    labelMedium = defaultTypography.labelMedium.copy(fontFamily = GoogleSansFontFamily, fontWeight = FontWeight.Normal),
     labelSmall = TextStyle(
-        fontWeight = FontWeight.Medium,
+        fontFamily = GoogleSansFontFamily,
+        fontWeight = FontWeight.Normal,
         fontSize = 10.sp,
         letterSpacing = 0.5.sp
     )
@@ -182,8 +246,15 @@ fun FocusTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = FocusTypography,
-        content = content
-    )
+        typography = FocusTypography
+    ) {
+        CompositionLocalProvider(
+            LocalTextStyle provides TextStyle(
+                fontFamily = GoogleSansFontFamily,
+                fontWeight = FontWeight.Normal
+            ),
+            content = content
+        )
+    }
 }
 

@@ -320,8 +320,8 @@ fun FocusPill(
             val textStyle = TextStyle(
                 color = Color.White.copy(alpha = pauseAlpha),
                 fontSize = if (timerState is TimerState.Completed) 22.sp else 20.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.Normal,
+                fontFamily = GoogleSansFontFamily,
                 letterSpacing = 0.6.sp,
                 shadow = Shadow(
                     color = Color.Black.copy(alpha = 0.38f),

@@ -7,6 +7,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -41,11 +43,12 @@ fun TaskRow(
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
 
-    val editInteractionSource = remember { MutableInteractionSource() }
-    val isEditHovered by editInteractionSource.collectIsHoveredAsState()
+    val playInteractionSource = remember { MutableInteractionSource() }
+    val isPlayHovered by playInteractionSource.collectIsHoveredAsState()
+    var isMenuOpen by remember { mutableStateOf(false) }
 
-    val deleteInteractionSource = remember { MutableInteractionSource() }
-    val isDeleteHovered by deleteInteractionSource.collectIsHoveredAsState()
+    val moreInteractionSource = remember { MutableInteractionSource() }
+    val isMoreHovered by moreInteractionSource.collectIsHoveredAsState()
 
     val isCompleted = task.status == TaskStatus.COMPLETED
 
@@ -57,7 +60,7 @@ fun TaskRow(
 
     val borderColor = when {
         isSelected -> Color(0xFF454552)
-        isHovered -> Color(0xFF33333D)
+        isHovered -> Color(0xFF454552) // Color(0xFF33333D)
         else -> Color(0xFF24242A)
     }
 
@@ -65,9 +68,9 @@ fun TaskRow(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(backgroundColor, RoundedCornerShape(12.dp))
-            .border(1.dp, borderColor, RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(8.dp))
+            .background(backgroundColor, RoundedCornerShape(8.dp))
+            .border(1.dp, borderColor, RoundedCornerShape(8.dp))
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -78,7 +81,7 @@ fun TaskRow(
         // 1. Circle Checkbox
         Box(
             modifier = Modifier
-                .size(26.dp)
+                .size(25.dp)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
@@ -93,7 +96,7 @@ fun TaskRow(
             )
         }
 
-        Spacer(modifier = Modifier.width(14.dp))
+        Spacer(modifier = Modifier.width(12.dp))
 
         // 2. Title + Details (Clock, Duration, Dot, Category Badge)
         Column(
@@ -104,42 +107,42 @@ fun TaskRow(
                 text = task.title,
                 color = if (isCompleted) FocusColors.TextDim else Color(0xFFF2F2F4),
                 fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.Normal,
                 textDecoration = if (isCompleted) TextDecoration.LineThrough else TextDecoration.None
             )
 
-            Spacer(modifier = Modifier.height(5.dp))
+            Spacer(modifier = Modifier.height(3.dp))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // // Clock icon
-                // MomentumIcons.Clock(
-                //     color = Color(0xFF8E8E98),
-                //     size = 13.dp
-                // )
+                // Clock icon
+                MomentumIcons.Clock(
+                    color = Color(0xFF8E8E98),
+                    size = 12.dp
+                )
 
-                // Spacer(modifier = Modifier.width(5.dp))
+                Spacer(modifier = Modifier.width(5.dp))
 
-                // // Duration text (e.g. "30 min")
-                // Text(
-                //     text = formatDuration(task.durationMinutes),
-                //     color = Color(0xFF8E8E98),
-                //     fontSize = 12.5.sp,
-                //     fontWeight = FontWeight.Normal
-                // )
+                // Duration text (e.g. "30 min")
+                Text(
+                    text = formatDuration(task.durationMinutes),
+                    color = Color(0xFF8E8E98),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal
+                )
 
-                // Spacer(modifier = Modifier.width(7.dp))
+                Spacer(modifier = Modifier.width(7.dp))
 
                 // Bullet dot
-                // Text(
-                //     text = "•",
-                //     color = Color(0xFF52525B),
-                //     fontSize = 11.sp,
-                //     fontWeight = FontWeight.Normal
-                // )
+                Text(
+                    text = "•",
+                    color = Color(0xFF52525B),
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Normal
+                )
 
-                // Spacer(modifier = Modifier.width(7.dp))
+                Spacer(modifier = Modifier.width(7.dp))
 
                 // Category pill
                 TagChip(tag = task.tag)
@@ -148,45 +151,104 @@ fun TaskRow(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        // 3. Action Buttons (Edit Pencil, Trash Can)
+        // 3. Right Side Info (Duration, Play Button, Three Dots)
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            // Clock icon
-            MomentumIcons.Clock(
-                color = Color(0xFF8E8E98),
-                size = 13.dp
-            )
+            // // Duration text (e.g. "30 min")
+            // Text(
+            //     text = formatDuration(task.durationMinutes),
+            //     color = Color(0xFF8E8E98),
+            //     fontSize = 12.5.sp,
+            //     fontWeight = FontWeight.Normal
+            // )
 
-            Spacer(modifier = Modifier.width(5.dp))
-
-            // Duration text (e.g. "30 min")
-            Text(
-                text = formatDuration(task.durationMinutes),
-                color = Color(0xFF8E8E98),
-                fontSize = 12.5.sp,
-                fontWeight = FontWeight.Normal
-            )
-
-            Spacer(modifier = Modifier.width(7.dp))
-
-            // Delete Button
+            // Play button (starts focus mode)
             Box(
                 modifier = Modifier
                     .size(24.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(
+                        Color.Transparent,
+                        RoundedCornerShape(20.dp)
+                    )
+                    // .border(
+                    //     1.dp,
+                    //     Color(0xFF33333D),
+                    //     RoundedCornerShape(20.dp)
+                    // )
                     .clickable(
-                        interactionSource = deleteInteractionSource,
+                        interactionSource = playInteractionSource,
                         indication = null,
-                        onClick = onDelete
+                        onClick = onPlay
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                MomentumIcons.TrashCan(
-                    color = if (isDeleteHovered) FocusColors.Red else Color(0xFF8E8E98),
-                    size = 16.dp
+                MomentumIcons.PlayTriangle(
+                    color = if (isPlayHovered) Color.White else Color(0xFF8E8E98),
+                    size = if (isPlayHovered) 22.dp else 20.dp
                 )
             }
+
+            // Three dot Button
+            Box(contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(
+                            if (isMoreHovered) Color(0xFF26262E) else Color.Transparent,
+                            RoundedCornerShape(6.dp)
+                        )
+                        .clickable(
+                            interactionSource = moreInteractionSource,
+                            indication = null,
+                            onClick = { isMenuOpen = true }
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    MomentumIcons.MoreHorizontal(
+                        color = if (isMoreHovered) Color.White else FocusColors.TextSecondary,
+                        size = 15.dp
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = isMenuOpen,
+                    onDismissRequest = { isMenuOpen = false },
+                    modifier = Modifier.background(FocusColors.CardBackground)
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Start focus", color = Color.White, fontSize = 13.sp) },
+                        onClick = {
+                            isMenuOpen = false
+                            onPlay()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                if (isCompleted) "Mark as incomplete" else "Mark as complete",
+                                color = Color.White,
+                                fontSize = 13.sp
+                            )
+                        },
+                        onClick = {
+                            isMenuOpen = false
+                            onToggleCompleted()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Delete task", color = FocusColors.Red, fontSize = 13.sp) },
+                        onClick = {
+                            isMenuOpen = false
+                            onDelete()
+                        }
+                    )
+                }
+            }
+
         }
     }
 }
@@ -204,15 +266,15 @@ fun TagChip(tag: String, modifier: Modifier = Modifier) {
 
     Box(
         modifier = modifier
-            .background(bg, RoundedCornerShape(6.dp))
-            .padding(horizontal = 8.dp, vertical = 2.5.dp),
+            .background(bg, RoundedCornerShape(5.dp))
+            .padding(horizontal = 7.dp, vertical = 2.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = tag,
             color = textColor,
             fontSize = 11.sp,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Normal
         )
     }
 }
@@ -263,6 +325,6 @@ private fun formatDuration(minutes: Int): String {
         val m = minutes % 60
         if (m > 0) "${h}h ${m}m" else "${h}h"
     } else {
-        "$minutes min"
+        "${minutes} min"
     }
 }

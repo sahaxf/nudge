@@ -94,7 +94,8 @@ fun TaskInput(
                     textStyle = TextStyle(
                         color = Color.White,
                         fontSize = 15.sp,
-                        fontWeight = FontWeight.Normal
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = GoogleSansFontFamily
                     ),
                     cursorBrush = SolidColor(Color.White),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),

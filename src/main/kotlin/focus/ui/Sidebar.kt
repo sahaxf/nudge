@@ -51,7 +51,7 @@ fun Sidebar(
                 text = "momentum",
                 color = Color.White,
                 fontSize = 17.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Normal,
                 letterSpacing = (-0.3).sp
             )
         }
@@ -119,7 +119,7 @@ private fun SidebarItemRow(
             text = item.name,
             color = contentColor,
             fontSize = 14.sp,
-            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
+            fontWeight = FontWeight.Normal
         )
     }
 }

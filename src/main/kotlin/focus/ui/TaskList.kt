@@ -72,10 +72,10 @@ fun TaskList(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "All tasks",
+                text = "Tasks",
                 color = Color.White,
                 fontSize = 15.sp,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.Normal
             )
 
             Row(
@@ -197,7 +197,7 @@ fun TaskList(
                             text = "No tasks yet",
                             color = Color.White,
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.SemiBold,
+                            fontWeight = FontWeight.Normal,
                             letterSpacing = (-0.2).sp
                         )
 
@@ -230,7 +230,7 @@ fun TaskList(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(start = 0.dp, end = 0.dp, top = 2.dp, bottom = 84.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     itemsIndexed(displayedTasks, key = { _, task -> task.id }) { _, task ->
                         TaskRow(
@@ -283,7 +283,7 @@ fun TaskList(
                             text = "Start focusing",
                             color = Color.Black,
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.Normal
                         )
                     }
                 }

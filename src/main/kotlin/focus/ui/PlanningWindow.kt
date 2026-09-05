@@ -40,7 +40,7 @@ fun PlanningWindow(
     val selectedTask by appState.selectedTask.collectAsState()
 
     val windowState = rememberWindowState(
-        size = DpSize(900.dp, 720.dp),
+        size = DpSize(900.dp, 700.dp),
         position = WindowPosition.PlatformDefault
     )
 
@@ -141,7 +141,7 @@ fun PlanningContent(
                         text = "Good morning, Akash 👋",
                         color = Color.White,
                         fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Normal,
                         letterSpacing = (-0.3).sp
                     )
 
