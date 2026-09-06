@@ -7,6 +7,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
@@ -23,12 +25,153 @@ import focus.domain.Task
 import focus.domain.TaskStatus
 
 /**
- * Task item row matching the modern Momentum design:
- * - Rounded card container with subtle border
- * - Circle checkbox on the left
+ * Featured "Up next" task card:
+ * - Rounded card container with warm amber border (Color(0xFF4A3E1E))
+ * - Dark background (Color(0xFF131316))
+ * - Hollow circle checkbox on the left
  * - Task title on top
- * - Clock icon, duration (e.g. "30 min"), bullet dot, and colored category tag pill on the bottom row
- * - Action icons on the right: edit pencil icon and delete trash icon
+ * - Clock icon, duration ("25 min"), bullet "•", and colored category tag pill on the bottom row
+ * - Prominent golden-yellow "▶ Start" button on the right
+ */
+@Composable
+fun UpNextTaskCard(
+    task: Task,
+    onToggleCompleted: () -> Unit = {},
+    onPlay: () -> Unit = {},
+    onDelete: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    val checkboxInteractionSource = remember { MutableInteractionSource() }
+    val isCheckboxHovered by checkboxInteractionSource.collectIsHoveredAsState()
+
+    var isMenuOpen by remember { mutableStateOf(false) }
+    val isCompleted = task.status == TaskStatus.COMPLETED
+
+    val borderColor = Color(0xFF4A3E1E)
+    val backgroundColor = Color(0xFF131316)
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(backgroundColor, RoundedCornerShape(12.dp))
+            .border(1.dp, borderColor, RoundedCornerShape(12.dp))
+            .padding(horizontal = 16.dp, vertical = 14.dp)
+    ) {
+        // 1. Circle Checkbox
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .clickable(
+                    interactionSource = checkboxInteractionSource,
+                    indication = null,
+                    onClick = onToggleCompleted
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            MomentumIcons.CircleCheckbox(
+                checked = isCompleted,
+                size = 22.dp,
+                uncheckedColor = if (isCheckboxHovered) Color(0xFF555562) else Color(0xFF3F3F4A)
+            )
+        }
+
+        Spacer(modifier = Modifier.width(14.dp))
+
+        // 2. Title + Details (Clock, Duration, Dot, Category Badge)
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = task.title,
+                color = if (isCompleted) Color(0xFF71717A) else Color(0xFFF2F2F4),
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Normal,
+                textDecoration = if (isCompleted) TextDecoration.LineThrough else TextDecoration.None
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Clock icon
+                MomentumIcons.Clock(
+                    color = Color(0xFF8E8E98),
+                    size = 12.dp
+                )
+
+                Spacer(modifier = Modifier.width(5.dp))
+
+                // Duration text (e.g. "25 min")
+                Text(
+                    text = formatDuration(task.durationMinutes),
+                    color = Color(0xFF8E8E98),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal
+                )
+
+                Spacer(modifier = Modifier.width(6.dp))
+
+                // Bullet dot
+                Text(
+                    text = "•",
+                    color = Color(0xFF52525B),
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Normal
+                )
+
+                Spacer(modifier = Modifier.width(6.dp))
+
+                // Category pill
+                TagChip(tag = task.tag)
+            }
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        // 3. Prominent Yellow "Start" Button
+        Button(
+            onClick = onPlay,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = FocusColors.MomentumYellow,
+                contentColor = Color.Black
+            ),
+            shape = RoundedCornerShape(8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 0.dp,
+                pressedElevation = 0.dp,
+                hoveredElevation = 1.dp
+            ),
+            modifier = Modifier.height(36.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                MomentumIcons.PlayTriangle(
+                    color = Color.Black,
+                    size = 11.dp
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "Start",
+                    color = Color.Black,
+                    fontSize = 13.5.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Task item row for later tasks matching the design:
+ * - Clean row layout without card border
+ * - Circle checkbox on the left
+ * - Task title and details in the center
+ * - Play icon button and three dots menu on the right
  */
 @Composable
 fun TaskRow(
@@ -43,47 +186,39 @@ fun TaskRow(
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
 
+    val checkboxInteractionSource = remember { MutableInteractionSource() }
+    val isCheckboxHovered by checkboxInteractionSource.collectIsHoveredAsState()
+
     val playInteractionSource = remember { MutableInteractionSource() }
     val isPlayHovered by playInteractionSource.collectIsHoveredAsState()
-    var isMenuOpen by remember { mutableStateOf(false) }
 
     val moreInteractionSource = remember { MutableInteractionSource() }
     val isMoreHovered by moreInteractionSource.collectIsHoveredAsState()
 
+    var isMenuOpen by remember { mutableStateOf(false) }
     val isCompleted = task.status == TaskStatus.COMPLETED
 
-    val backgroundColor = when {
-        isSelected -> Color(0xFF1E1E24)
-        isHovered -> Color(0xFF19191D)
-        else -> Color(0xFF141416)
-    }
-
-    val borderColor = when {
-        isSelected -> Color(0xFF454552)
-        isHovered -> Color(0xFF454552) // Color(0xFF33333D)
-        else -> Color(0xFF24242A)
-    }
+    val rowBg = if (isHovered) Color(0xFF16161A) else Color.Transparent
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(backgroundColor, RoundedCornerShape(8.dp))
-            .border(1.dp, borderColor, RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(6.dp))
+            .background(rowBg)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
                 onClick = onSelect
             )
-            .padding(horizontal = 16.dp, vertical = 14.dp)
+            .padding(horizontal = 4.dp, vertical = 13.dp)
     ) {
         // 1. Circle Checkbox
         Box(
             modifier = Modifier
-                .size(25.dp)
+                .size(24.dp)
                 .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
+                    interactionSource = checkboxInteractionSource,
                     indication = null,
                     onClick = onToggleCompleted
                 ),
@@ -92,11 +227,11 @@ fun TaskRow(
             MomentumIcons.CircleCheckbox(
                 checked = isCompleted,
                 size = 22.dp,
-                uncheckedColor = if (isHovered) Color(0xFF555562) else Color(0xFF3E3E48)
+                uncheckedColor = if (isCheckboxHovered) Color(0xFF555562) else Color(0xFF3F3F4A)
             )
         }
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(14.dp))
 
         // 2. Title + Details (Clock, Duration, Dot, Category Badge)
         Column(
@@ -105,17 +240,15 @@ fun TaskRow(
         ) {
             Text(
                 text = task.title,
-                color = if (isCompleted) FocusColors.TextDim else Color(0xFFF2F2F4),
+                color = if (isCompleted) Color(0xFF71717A) else Color(0xFFF2F2F4),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Normal,
                 textDecoration = if (isCompleted) TextDecoration.LineThrough else TextDecoration.None
             )
 
-            Spacer(modifier = Modifier.height(3.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 // Clock icon
                 MomentumIcons.Clock(
                     color = Color(0xFF8E8E98),
@@ -132,7 +265,7 @@ fun TaskRow(
                     fontWeight = FontWeight.Normal
                 )
 
-                Spacer(modifier = Modifier.width(7.dp))
+                Spacer(modifier = Modifier.width(6.dp))
 
                 // Bullet dot
                 Text(
@@ -142,7 +275,7 @@ fun TaskRow(
                     fontWeight = FontWeight.Normal
                 )
 
-                Spacer(modifier = Modifier.width(7.dp))
+                Spacer(modifier = Modifier.width(6.dp))
 
                 // Category pill
                 TagChip(tag = task.tag)
@@ -151,33 +284,16 @@ fun TaskRow(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        // 3. Right Side Info (Duration, Play Button, Three Dots)
+        // 3. Right Side Actions: Play Triangle & Three Dots Menu
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // // Duration text (e.g. "30 min")
-            // Text(
-            //     text = formatDuration(task.durationMinutes),
-            //     color = Color(0xFF8E8E98),
-            //     fontSize = 12.5.sp,
-            //     fontWeight = FontWeight.Normal
-            // )
-
-            // Play button (starts focus mode)
+            // Play Button (starts focus on this task)
             Box(
                 modifier = Modifier
-                    .size(24.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(
-                        Color.Transparent,
-                        RoundedCornerShape(20.dp)
-                    )
-                    // .border(
-                    //     1.dp,
-                    //     Color(0xFF33333D),
-                    //     RoundedCornerShape(20.dp)
-                    // )
+                    .size(28.dp)
+                    .clip(RoundedCornerShape(6.dp))
                     .clickable(
                         interactionSource = playInteractionSource,
                         indication = null,
@@ -187,20 +303,16 @@ fun TaskRow(
             ) {
                 MomentumIcons.PlayTriangle(
                     color = if (isPlayHovered) Color.White else Color(0xFF8E8E98),
-                    size = if (isPlayHovered) 22.dp else 20.dp
+                    size = 13.dp
                 )
             }
 
-            // Three dot Button
+            // Three dots button
             Box(contentAlignment = Alignment.Center) {
                 Box(
                     modifier = Modifier
-                        .size(24.dp)
+                        .size(28.dp)
                         .clip(RoundedCornerShape(6.dp))
-                        .background(
-                            if (isMoreHovered) Color(0xFF26262E) else Color.Transparent,
-                            RoundedCornerShape(6.dp)
-                        )
                         .clickable(
                             interactionSource = moreInteractionSource,
                             indication = null,
@@ -209,15 +321,15 @@ fun TaskRow(
                     contentAlignment = Alignment.Center
                 ) {
                     MomentumIcons.MoreHorizontal(
-                        color = if (isMoreHovered) Color.White else FocusColors.TextSecondary,
-                        size = 15.dp
+                        color = if (isMoreHovered) Color.White else Color(0xFF8E8E98),
+                        size = 16.dp
                     )
                 }
 
                 DropdownMenu(
                     expanded = isMenuOpen,
                     onDismissRequest = { isMenuOpen = false },
-                    modifier = Modifier.background(FocusColors.CardBackground)
+                    modifier = Modifier.background(Color(0xFF1A1A1E))
                 ) {
                     DropdownMenuItem(
                         text = { Text("Start focus", color = Color.White, fontSize = 13.sp) },
@@ -248,13 +360,12 @@ fun TaskRow(
                     )
                 }
             }
-
         }
     }
 }
 
 /**
- * Tag badge chip styled according to tag category matching the Momentum design:
+ * Tag badge chip styled according to tag category:
  * - Learning: Soft purple
  * - Work: Soft blue
  * - Health: Soft green
@@ -279,26 +390,20 @@ fun TagChip(tag: String, modifier: Modifier = Modifier) {
     }
 }
 
-private fun getTagColors(tag: String): Pair<Color, Color> {
+fun getTagColors(tag: String): Pair<Color, Color> {
     val clean = tag.lowercase().trim()
     return when {
-        clean.contains("learn") || clean.contains("study") || clean.contains("read") || clean.contains("book") || clean.contains(
-            "chapter"
-        ) ->
+        clean.contains("health") || clean.contains("walk") || clean.contains("gym") || clean.contains("fitness") || clean.contains("exercise") ->
+            Pair(Color(0xFF14291B), Color(0xFF4DBE6E))
+
+        clean.contains("learn") || clean.contains("study") || clean.contains("read") || clean.contains("book") || clean.contains("chapter") ->
             Pair(Color(0xFF261D36), Color(0xFFB392F0))
+
+        clean.contains("person") || clean.contains("guitar") || clean.contains("music") || clean.contains("hobby") || clean.contains("life") ->
+            Pair(Color(0xFF332014), Color(0xFFE88A3C))
 
         clean.contains("work") || clean.contains("auth") || clean.contains("code") || clean.contains("dev") ->
             Pair(Color(0xFF142238), Color(0xFF5296E8))
-
-        clean.contains("health") || clean.contains("walk") || clean.contains("gym") || clean.contains("fitness") || clean.contains(
-            "exercise"
-        ) ->
-            Pair(Color(0xFF14291B), Color(0xFF4DBE6E))
-
-        clean.contains("person") || clean.contains("guitar") || clean.contains("music") || clean.contains("hobby") || clean.contains(
-            "life"
-        ) ->
-            Pair(Color(0xFF332014), Color(0xFFE88A3C))
 
         clean.contains("deep") ->
             Pair(FocusColors.TagDeepWorkBg, FocusColors.TagDeepWorkText)
@@ -317,7 +422,7 @@ private fun getTagColors(tag: String): Pair<Color, Color> {
     }
 }
 
-private fun formatDuration(minutes: Int): String {
+fun formatDuration(minutes: Int): String {
     return if (minutes >= 120 && minutes % 60 == 0) {
         "${minutes / 60}h"
     } else if (minutes > 180) {
