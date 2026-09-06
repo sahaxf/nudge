@@ -37,7 +37,7 @@ fun Sidebar(
         modifier = modifier
             .width(210.dp)
             .fillMaxHeight()
-            .background(FocusColors.SidebarBackground)
+            .background(FocusColors.AppBackground)
             .padding(horizontal = 14.dp, vertical = 26.dp)
     ) {
         // Logo Header

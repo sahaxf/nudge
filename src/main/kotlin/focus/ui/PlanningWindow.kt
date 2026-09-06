@@ -26,6 +26,8 @@ import focus.domain.Task
 import focus.domain.TaskStatus
 import focus.state.AppState
 
+import androidx.compose.ui.window.WindowPlacement
+
 /**
  * The planning window — Momentum desktop interface.
  * Implements the 2-column dashboard layout with sidebar navigation,
@@ -49,30 +51,64 @@ fun PlanningWindow(
         title = "momentum",
         icon = painterResource("icon.png"),
         state = windowState,
+        undecorated = true,
+        transparent = true,
         resizable = true
     ) {
         FocusTheme {
-            PlanningContent(
-                tasks = tasks,
-                selectedTask = selectedTask,
-                onAddTask = { title, duration, priority, tag ->
-                    appState.addTask(title, duration, priority, tag)
-                },
-                onSelectTask = { appState.selectTask(it) },
-                onToggleCompleted = { appState.toggleTask(it) },
-                onPlayTask = { task ->
-                    appState.selectTask(task)
-                    appState.startFocus()
-                },
-                onStartFocus = {
-                    if (tasks.none { it.status == TaskStatus.TODO }) {
-                        appState.addTask("Focus Session", 25, Priority.MEDIUM, "Deep Work")
+            val isMaximized = windowState.placement == WindowPlacement.Maximized
+            val cornerRadius = if (isMaximized) 0.dp else 10.dp
+            val windowShape = RoundedCornerShape(cornerRadius)
+            
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(windowShape)
+                    .then(
+                        if (!isMaximized) Modifier.border(1.dp, FocusColors.CardBorder, windowShape)
+                        else Modifier
+                    )
+                    .background(FocusColors.AppBackground)
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    // Custom Momentum Title Bar
+                    TitleBar(
+                        windowState = windowState,
+                        onCloseRequest = onCloseRequest
+                    )
+
+                    // Main planning interface content
+                    Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                        PlanningContent(
+                            tasks = tasks,
+                            selectedTask = selectedTask,
+                            onAddTask = { title, duration, priority, tag ->
+                                appState.addTask(title, duration, priority, tag)
+                            },
+                            onSelectTask = { appState.selectTask(it) },
+                            onToggleCompleted = { appState.toggleTask(it) },
+                            onPlayTask = { task ->
+                                appState.selectTask(task)
+                                appState.startFocus()
+                            },
+                            onStartFocus = {
+                                if (tasks.none { it.status == TaskStatus.TODO }) {
+                                    appState.addTask("Focus Session", 25, Priority.MEDIUM, "Deep Work")
+                                }
+                                appState.startFocus()
+                            },
+                            onDeleteTask = { appState.deleteTask(it) },
+                            hasActiveTasks = tasks.any { it.status == TaskStatus.TODO }
+                        )
                     }
-                    appState.startFocus()
-                },
-                onDeleteTask = { appState.deleteTask(it) },
-                hasActiveTasks = tasks.any { it.status == TaskStatus.TODO }
-            )
+                }
+
+                // Smooth resize overlay for undecorated floating window
+                WindowResizeOverlay(
+                    window = window,
+                    windowState = windowState
+                )
+            }
         }
     }
 }
